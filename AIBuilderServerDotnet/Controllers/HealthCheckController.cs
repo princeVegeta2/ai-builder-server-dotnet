@@ -2,6 +2,8 @@
 
 namespace AIBuilderServerDotnet.Controllers
 {
+    [ApiController]
+    [Route("api/[controller]")]
     public class HealthCheckController : ControllerBase
     {
         // GET: api/healthcheck
