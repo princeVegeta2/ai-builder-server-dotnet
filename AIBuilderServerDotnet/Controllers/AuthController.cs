@@ -1,6 +1,8 @@
 ﻿using AIBuilderServerDotnet.Data;
 using AIBuilderServerDotnet.DTOs;
+using AIBuilderServerDotnet.Interfaces;
 using AIBuilderServerDotnet.Models;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -13,74 +15,79 @@ namespace AIBuilderServerDotnet.Controllers
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IUserRepository _userRepository;
+        private readonly IMapper _mapper;
         private readonly string _jwtSecret;
 
-        public AuthController(ApplicationDbContext context)
+        public AuthController(IUserRepository userRepository, IMapper mapper, string jwtSecret)
         {
-            _context = context;
-            _jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET");
+            _userRepository = userRepository;
+            _mapper = mapper;
+            _jwtSecret = jwtSecret ?? throw new ArgumentNullException(nameof(jwtSecret));
         }
 
         [HttpPost("signup")]
         public async Task<IActionResult> SignUp([FromBody] SignUpDto signUpDto)
         {
-            // Check if the user already exists
-            if (_context.Users.Any(u => u.Email == signUpDto.Email))
+            // Check if the email already exists
+            if (await _userRepository.UserExistsByEmailAsync(signUpDto.Email))
             {
                 return BadRequest("Email already in use");
-            }else if (_context.Users.Any(u => u.Username == signUpDto.Username))
+            }
+
+            // Check if the username already exists
+            if (await _userRepository.UserExistsByUsernameAsync(signUpDto.Username))
             {
                 return BadRequest("Username already in use");
             }
 
             // Hash the password
-            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(signUpDto.Password);
+            // var hashedPassword = BCrypt.Net.BCrypt.HashPassword(signUpDto.Password);
 
             // Create a new user
-            var user = new User
+            var user = _mapper.Map<User>(signUpDto);
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(signUpDto.Password);
+            user.CreatedAt = DateTime.UtcNow;
+            /*
+             * var user = new User
             {
                 Username = signUpDto.Username,
                 Email = signUpDto.Email,
-                PasswordHash = signUpDto.Password,
+                PasswordHash = hashedPassword,
                 CreatedAt = DateTime.UtcNow
             };
-
+            */
             // Add a new user to the database
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
+            await _userRepository.AddUserAsync(user);
 
-            return Ok("User registered succesfully.");
+            return Ok("User registered successfully.");
         }
 
         [HttpPost("signin")]
-        public IActionResult SignIn([FromBody] SignInDto signInDto)
+        public async Task<IActionResult> SignIn([FromBody] SignInDto signInDto)
         {
-            // Find user by email
-            var user = _context.Users.FirstOrDefault(u => u.Email == signInDto.Email);
+            var user = await _userRepository.GetUserByEmailAsync(signInDto.Email);
 
             if (user == null)
             {
-                return Unauthorized("Inavlid credentials.");
+                return Unauthorized("Invalid email.");
             }
 
-            // Verify the password
             if (!BCrypt.Net.BCrypt.Verify(signInDto.Password, user.PasswordHash))
             {
                 return Unauthorized("Wrong password.");
             }
 
-            // Generate JWT token
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_jwtSecret);
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
-                Subject = new ClaimsIdentity(new Claim[]
+                Subject = new ClaimsIdentity(new[]
                 {
-                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                    new Claim(ClaimTypes.Email, user.Email)
-                }),
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new Claim(ClaimTypes.Email, user.Email)
+        }),
                 Expires = DateTime.UtcNow.AddHours(2),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
@@ -88,7 +95,7 @@ namespace AIBuilderServerDotnet.Controllers
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var tokenString = tokenHandler.WriteToken(token);
 
-            return Ok(new { Token = tokenString });
+            return Ok(new SignInResponseDto { Token = tokenString });
         }
     }
 }
