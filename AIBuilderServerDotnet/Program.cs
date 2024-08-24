@@ -20,7 +20,8 @@ var port = Environment.GetEnvironmentVariable("DB_PORT");
 var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET")
                 ?? throw new InvalidOperationException("JWT_SECRET environment variable is not set.");
 
-var connectionString = $"Host={host};Database={database};Username={username};Password={password};Port={port};SSL Mode=Require;Trust Server Certificate=true";
+var connectionString = $"Host={host};Database={database};Username={username};Password={password};Port={port};SSL Mode=Disable";
+
 
 // Add services to the container.
 builder.Services.AddControllers();
