@@ -6,10 +6,12 @@ phases:
       dotnet: 8.0
   build:
     commands:
+      - echo "Restoring .NET Core dependencies..."
+      - dotnet restore AiBuilderServerDotnet.sln
       - echo "Building the .NET Core application..."
-      - dotnet restore
-      - dotnet build
-      - dotnet publish -c Release -o ./publish
+      - dotnet build AiBuilderServerDotnet.sln
+      - echo "Publishing the .NET Core application..."
+      - dotnet publish AiBuilderServerDotnet/AiBuilderServerDotnet.csproj -c Release -o ./publish
 artifacts:
   files:
     - '**/*'
