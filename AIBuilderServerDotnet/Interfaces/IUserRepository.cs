@@ -18,5 +18,11 @@ namespace AIBuilderServerDotnet.Interfaces
 
         // Check if the user has a builder access(by user id)
         Task<bool> UserHasBuilderAccessAsync(int userId);
+
+        // Getting a username by id from users table
+        Task<string> GetUsernameById(int userId);
+
+        // Getting an email by id from users table
+        Task<string> GetEmailById(int userId);
     }
 }

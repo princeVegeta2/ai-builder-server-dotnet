@@ -69,5 +69,27 @@ namespace AIBuilderServerDotnet.Repository
             var user = await _context.Users.FindAsync(userId);
             return user?.BuilderAccess ?? false;
         }
+
+        /// <summary>
+        /// Finds the username of a user by userId(using JWT)
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        public async Task<string> GetUsernameById(int userId)
+        {
+            var user = await _context.Users.FindAsync(userId);
+            return user?.Username;
+        }
+
+        /// <summary>
+        /// Finds the email of a user by userId(using JWT)
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        public async Task<string> GetEmailById(int userId)
+        {
+            var user = await _context.Users.FindAsync(userId);
+            return user?.Email;
+        }
     }
 }
