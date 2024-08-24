@@ -1,0 +1,16 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      dotnet: 8.0
+  build:
+    commands:
+      - echo "Building the .NET Core application..."
+      - dotnet restore
+      - dotnet build
+      - dotnet publish -c Release -o ./publish
+artifacts:
+  files:
+    - '**/*'
+  base-directory: ./publish
