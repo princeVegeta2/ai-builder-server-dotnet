@@ -19,8 +19,20 @@ var password = Environment.GetEnvironmentVariable("DB_PASSWORD");
 var port = Environment.GetEnvironmentVariable("DB_PORT");
 var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET")
                 ?? throw new InvalidOperationException("JWT_SECRET environment variable is not set.");
+var kestrelPort = Environment.GetEnvironmentVariable("PORT") ?? "5000"; // Default to 5000 if PORT is not set
 
-var connectionString = $"Host={host};Database={database};Username={username};Password={password};Port={port};SSL Mode=Disable";
+// Updated connection string to allow SSL with self-signed certificates
+var connectionString = $"Host={host};Database={database};Username={username};Password={password};Port={port};SSL Mode=Require;Trust Server Certificate=true";
+
+// Comment out for localhost
+// Configure Kestrel to listen on the specified port
+builder.WebHost.ConfigureKestrel(serverOptions =>
+{
+    serverOptions.ListenAnyIP(int.Parse(kestrelPort));
+});
+
+builder.WebHost.UseUrls($"http://localhost:{kestrelPort}");
+
 
 
 // Add services to the container.
@@ -30,8 +42,11 @@ builder.Services.AddControllers();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseNpgsql(connectionString));
 
-// Register the UserRepository nad IUserRepository (SCOPED creates an instance of the service for each request)
+// Register the UserRepository and IUserRepository (SCOPED creates an instance of the service for each request)
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+
+// Register the ProjectRepository and IProjectRepository (SCOPED creates an instance of the service for each request)
+builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 
 // Register the AutoMapper to register more profiles automatically <SRP>
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
@@ -64,6 +79,15 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(builder =>
+        builder
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader());
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -78,6 +102,8 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 
 app.UseAuthorization();
+
+app.UseCors();
 
 app.MapControllers();
 

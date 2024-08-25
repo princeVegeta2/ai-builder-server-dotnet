@@ -48,15 +48,7 @@ namespace AIBuilderServerDotnet.Controllers
             var user = _mapper.Map<User>(signUpDto);
             user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(signUpDto.Password);
             user.CreatedAt = DateTime.UtcNow;
-            /*
-             * var user = new User
-            {
-                Username = signUpDto.Username,
-                Email = signUpDto.Email,
-                PasswordHash = hashedPassword,
-                CreatedAt = DateTime.UtcNow
-            };
-            */
+
             // Add a new user to the database
             await _userRepository.AddUserAsync(user);
 
