@@ -48,6 +48,8 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 // Register the ProjectRepository and IProjectRepository (SCOPED creates an instance of the service for each request)
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 
+builder.Services.AddScoped<IPageRepository, PageRepository>();
+
 // Register the AutoMapper to register more profiles automatically <SRP>
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
@@ -97,13 +99,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseCors();
+
 app.UseHttpsRedirection();
 
 app.UseAuthentication();
 
 app.UseAuthorization();
-
-app.UseCors();
 
 app.MapControllers();
 

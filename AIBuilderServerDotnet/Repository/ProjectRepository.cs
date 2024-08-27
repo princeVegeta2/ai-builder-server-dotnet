@@ -24,5 +24,31 @@ namespace AIBuilderServerDotnet.Repository
             await _context.Projects.AddAsync(project);
             await _context.SaveChangesAsync();
         }
+
+        /// <summary>
+        /// Check if the project with that name already exists tied to that user_id
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="projectName"></param>
+        /// <returns></returns>
+        public async Task<bool> ProjectExistsForUserAsync(int userId, string projectName)
+        {
+            return await _context.Projects
+                .AnyAsync(p => p.UserId == userId && p.Name == projectName);
+        }
+
+        /// <summary>
+        /// Retrieving a Project by using a userId and project name
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <param name="projectName"></param>
+        /// <returns></returns>
+        public async Task<Project> GetProjectByUserIdAndProjectName(int userId, string projectName)
+        {
+            return await _context.Projects
+                .Where(p => p.UserId == userId && p.Name == projectName)
+                .FirstOrDefaultAsync();
+        }
+
     }
 }

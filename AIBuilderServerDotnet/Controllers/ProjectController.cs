@@ -27,17 +27,28 @@ namespace AIBuilderServerDotnet.Controllers
         [HttpPost("create-project")]
         public async Task<IActionResult> CreateProject([FromBody] AddProjectDto addProjectDto)
         {
-            // Get the user ID from JWT claims
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
 
-            // Map AddProjectDto to Project
-            var project = _mapper.Map<Project>(addProjectDto);
-            project.UserId = userId; // Set the UserId using the value from the JWT token
+            // Check if the project with the same name already exists for this user
+            var projectExists = await _projectRepository.ProjectExistsForUserAsync(userId, addProjectDto.Name);
 
-            // Add the project to the database
+            if (projectExists)
+            {
+                return BadRequest(new { message = "A project with this name already exists." });
+            }
+
+            var project = _mapper.Map<Project>(addProjectDto);
+            project.UserId = userId;
             await _projectRepository.AddProject(project);
 
-            return Ok("Project created successfully.");
+            var response = new CreateProjectResponseDto
+            {
+                Message = "Project created successfully",
+                ProjectId = project.Id
+            };
+
+            return Ok(response);
         }
+
     }
 }
