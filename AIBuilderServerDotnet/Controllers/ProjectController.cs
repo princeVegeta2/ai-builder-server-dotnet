@@ -16,18 +16,20 @@ namespace AIBuilderServerDotnet.Controllers
         private readonly IProjectRepository _projectRepository;
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
+        private readonly IJwtService _jwtService;
 
-        public ProjectController(IProjectRepository projectRepository, IUserRepository userRepository, IMapper mapper)
+        public ProjectController(IProjectRepository projectRepository, IUserRepository userRepository, IMapper mapper, IJwtService jwtService)
         {
             _projectRepository = projectRepository;
             _userRepository = userRepository;
             _mapper = mapper;
+            _jwtService = jwtService;
         }
 
         [HttpPost("create-project")]
         public async Task<IActionResult> CreateProject([FromBody] AddProjectDto addProjectDto)
         {
-            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var userId = _jwtService.GetUserIdFromToken(User);
 
             // Check if the project with the same name already exists for this user
             var projectExists = await _projectRepository.ProjectExistsForUserAsync(userId, addProjectDto.Name);

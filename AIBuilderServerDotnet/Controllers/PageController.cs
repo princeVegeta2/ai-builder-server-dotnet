@@ -17,19 +17,21 @@ namespace AIBuilderServerDotnet.Controllers
         private readonly IPageRepository _pageRepository;
         private readonly IProjectRepository _projectRepository;
         private readonly IMapper _mapper;
+        private readonly IJwtService _jwtService;
 
-        public PageController(IPageRepository pageRepository, IProjectRepository projectRepository, IMapper mapper)
+        public PageController(IPageRepository pageRepository, IProjectRepository projectRepository, IMapper mapper, IJwtService jwtService)
         {
             _pageRepository = pageRepository;
             _projectRepository = projectRepository;
             _mapper = mapper;
+            _jwtService = jwtService;
         }
 
         [HttpPost("add-page")]
         public async Task<IActionResult> AddPage([FromBody] AddPageDto addPageDto)
         {
             // Get JWT from the user and find their id using it
-            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var userId = _jwtService.GetUserIdFromToken(User);
 
             // Get a project name 
             var project = await _projectRepository.GetProjectByUserIdAndProjectName(userId, addPageDto.ProjectName);
@@ -54,7 +56,7 @@ namespace AIBuilderServerDotnet.Controllers
         public async Task<IActionResult> DeletePage([FromBody] DeletePageDto deletePageDto)
         {
             // Get JWT from the user and find their id using it
-            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var userId = _jwtService.GetUserIdFromToken(User);
 
             // Get a project name 
             var project = await _projectRepository.GetProjectByUserIdAndProjectName(userId, deletePageDto.ProjectName);
@@ -82,7 +84,7 @@ namespace AIBuilderServerDotnet.Controllers
         public async Task<IActionResult> UpdatePage([FromBody] UpdatePageDto updatePageDto)
         {
             // Get JWT from the user and find their id using it
-            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var userId = _jwtService.GetUserIdFromToken(User);
 
             var project = await _projectRepository.GetProjectByUserIdAndProjectName(userId, updatePageDto.ProjectName);
 

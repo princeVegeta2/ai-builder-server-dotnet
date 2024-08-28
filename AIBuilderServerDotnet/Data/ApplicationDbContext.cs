@@ -13,6 +13,8 @@ namespace AIBuilderServerDotnet.Data
         public DbSet<Project> Projects { get; set; }
 
         public DbSet<Page> Pages { get; set; }
+
+        public DbSet<Widget> Widgets { get; set; }
     }
 
 }

@@ -3,10 +3,10 @@ using AIBuilderServerDotnet.DTOs;
 using AIBuilderServerDotnet.Interfaces;
 using AIBuilderServerDotnet.Models;
 using AutoMapper;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using System.Security.Claims;
+using Xunit;
 
 namespace AIBuilderServerDotnet.Tests
 {
@@ -16,17 +16,20 @@ namespace AIBuilderServerDotnet.Tests
         private readonly Mock<IProjectRepository> _mockProjectRepository;
         private readonly Mock<IUserRepository> _mockUserRepository;
         private readonly Mock<IMapper> _mockMapper;
+        private readonly Mock<IJwtService> _mockJwtService;
 
         public ProjectControllerTests()
         {
             _mockProjectRepository = new Mock<IProjectRepository>();
             _mockUserRepository = new Mock<IUserRepository>();
             _mockMapper = new Mock<IMapper>();
+            _mockJwtService = new Mock<IJwtService>(); // Initialize JwtService mock
 
             _projectController = new ProjectController(
                 _mockProjectRepository.Object,
                 _mockUserRepository.Object,
-                _mockMapper.Object
+                _mockMapper.Object,
+                _mockJwtService.Object
             );
         }
 
@@ -38,17 +41,11 @@ namespace AIBuilderServerDotnet.Tests
             var userId = 1;
 
             var project = new Project { Id = 123, Name = addProjectDto.Name, UserId = userId };
+
+            _mockJwtService.Setup(service => service.GetUserIdFromToken(It.IsAny<ClaimsPrincipal>()))
+                .Returns(userId);
+
             _mockMapper.Setup(m => m.Map<Project>(It.IsAny<AddProjectDto>())).Returns(project);
-
-            var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
-            {
-        new Claim(ClaimTypes.NameIdentifier, userId.ToString())
-            }, "mock"));
-
-            _projectController.ControllerContext = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext { User = user }
-            };
 
             // Act
             var result = await _projectController.CreateProject(addProjectDto);
@@ -70,15 +67,8 @@ namespace AIBuilderServerDotnet.Tests
             var addProjectDto = new AddProjectDto { Name = "Existing Project" };
             var userId = 1;
 
-            var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
-            {
-                new Claim(ClaimTypes.NameIdentifier, userId.ToString())
-            }, "mock"));
-
-            _projectController.ControllerContext = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext { User = user }
-            };
+            _mockJwtService.Setup(service => service.GetUserIdFromToken(It.IsAny<ClaimsPrincipal>()))
+                .Returns(userId);
 
             _mockProjectRepository
                 .Setup(repo => repo.ProjectExistsForUserAsync(userId, addProjectDto.Name))
@@ -94,8 +84,5 @@ namespace AIBuilderServerDotnet.Tests
             _mockProjectRepository.Verify(repo => repo.AddProject(It.IsAny<Project>()), Times.Never);
             _mockProjectRepository.Verify(repo => repo.ProjectExistsForUserAsync(userId, addProjectDto.Name), Times.Once);
         }
-
-
-
     }
 }

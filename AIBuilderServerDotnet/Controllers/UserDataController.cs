@@ -4,7 +4,6 @@ using AIBuilderServerDotnet.Models;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace AIBuilderServerDotnet.Controllers
 {
@@ -15,18 +14,20 @@ namespace AIBuilderServerDotnet.Controllers
     {
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
+        private readonly IJwtService _jwtService;
 
-        public UserDataController(IUserRepository userRepository, IMapper mapper)
+        public UserDataController(IUserRepository userRepository, IMapper mapper, IJwtService jwtService)
         {
             _userRepository = userRepository;
             _mapper = mapper;
+            _jwtService = jwtService;
         }
 
         [HttpGet("check-builder-access")]
         public async Task<IActionResult> CheckBuilderAccess()
         {
-            // Get the user ID from JWT claims
-            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            // Extract the user ID from the JWT token using JwtService
+            var userId = _jwtService.GetUserIdFromToken(User);
 
             // Check if the user has builder access
             var hasBuilderAccess = await _userRepository.UserHasBuilderAccessAsync(userId);
@@ -38,8 +39,8 @@ namespace AIBuilderServerDotnet.Controllers
         [HttpGet("get-username")]
         public async Task<IActionResult> GetUsername()
         {
-            // Get the user ID from JWT claims
-            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            // Extract the user ID from the JWT token using JwtService
+            var userId = _jwtService.GetUserIdFromToken(User);
 
             var username = await _userRepository.GetUsernameById(userId);
 
@@ -54,8 +55,8 @@ namespace AIBuilderServerDotnet.Controllers
         [HttpGet("get-email")]
         public async Task<IActionResult> GetEmail()
         {
-            // Get the user ID from JWT claims
-            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            // Extract the user ID from the JWT token using JwtService
+            var userId = _jwtService.GetUserIdFromToken(User);
 
             var email = await _userRepository.GetEmailById(userId);
 

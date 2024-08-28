@@ -4,10 +4,7 @@ using AIBuilderServerDotnet.Interfaces;
 using AIBuilderServerDotnet.Models;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
+using System.Threading.Tasks;
 
 namespace AIBuilderServerDotnet.Controllers
 {
@@ -17,13 +14,13 @@ namespace AIBuilderServerDotnet.Controllers
     {
         private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
-        private readonly string _jwtSecret;
+        private readonly IJwtService _jwtService;
 
-        public AuthController(IUserRepository userRepository, IMapper mapper, string jwtSecret)
+        public AuthController(IUserRepository userRepository, IMapper mapper, IJwtService jwtService)
         {
             _userRepository = userRepository;
             _mapper = mapper;
-            _jwtSecret = jwtSecret ?? throw new ArgumentNullException(nameof(jwtSecret));
+            _jwtService = jwtService;
         }
 
         [HttpPost("signup")]
@@ -40,9 +37,6 @@ namespace AIBuilderServerDotnet.Controllers
             {
                 return BadRequest("Username already in use");
             }
-
-            // Hash the password
-            // var hashedPassword = BCrypt.Net.BCrypt.HashPassword(signUpDto.Password);
 
             // Create a new user
             var user = _mapper.Map<User>(signUpDto);
@@ -70,24 +64,10 @@ namespace AIBuilderServerDotnet.Controllers
                 return Unauthorized("Wrong password.");
             }
 
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_jwtSecret);
+            // Use the JwtService to generate the token
+            var token = _jwtService.GenerateToken(user.Id, user.Email, signInDto.StaySignedIn);
 
-            var tokenDescriptor = new SecurityTokenDescriptor
-            {
-                Subject = new ClaimsIdentity(new[]
-                {
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(ClaimTypes.Email, user.Email)
-        }),
-                Expires = DateTime.UtcNow.AddHours(2),
-                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
-            };
-
-            var token = tokenHandler.CreateToken(tokenDescriptor);
-            var tokenString = tokenHandler.WriteToken(token);
-
-            return Ok(new SignInResponseDto { Token = tokenString });
+            return Ok(new SignInResponseDto { Token = token });
         }
     }
 }

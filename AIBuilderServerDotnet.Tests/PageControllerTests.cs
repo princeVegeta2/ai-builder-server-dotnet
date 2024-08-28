@@ -17,6 +17,7 @@ namespace AIBuilderServerDotnet.Tests
         private readonly Mock<IPageRepository> _mockPageRepository;
         private readonly Mock<IProjectRepository> _mockProjectRepository;
         private readonly Mock<IMapper> _mockMapper;
+        private readonly Mock<IJwtService> _mockJwtService;
         private readonly PageController _pageController;
 
         public PageControllerTests()
@@ -24,11 +25,13 @@ namespace AIBuilderServerDotnet.Tests
             _mockPageRepository = new Mock<IPageRepository>();
             _mockProjectRepository = new Mock<IProjectRepository>();
             _mockMapper = new Mock<IMapper>();
+            _mockJwtService = new Mock<IJwtService>();
 
             _pageController = new PageController(
                 _mockPageRepository.Object,
                 _mockProjectRepository.Object,
-                _mockMapper.Object
+                _mockMapper.Object,
+                _mockJwtService.Object // Pass the mock JwtService
             );
         }
 
@@ -48,20 +51,13 @@ namespace AIBuilderServerDotnet.Tests
             var project = new Project { Id = 1, Name = projectName, UserId = userId };
             var page = new Page { Id = 1, Name = addPageDto.Name, Position = addPageDto.Position, ProjectId = project.Id };
 
+            _mockJwtService.Setup(service => service.GetUserIdFromToken(It.IsAny<ClaimsPrincipal>()))
+                .Returns(userId);
+
             _mockProjectRepository.Setup(repo => repo.GetProjectByUserIdAndProjectName(userId, projectName))
                                   .ReturnsAsync(project);
 
             _mockMapper.Setup(m => m.Map<Page>(addPageDto)).Returns(page);
-
-            var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
-            {
-        new Claim(ClaimTypes.NameIdentifier, userId.ToString())
-            }, "mock"));
-
-            _pageController.ControllerContext = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext { User = user }
-            };
 
             // Act
             var result = await _pageController.AddPage(addPageDto);
@@ -86,18 +82,11 @@ namespace AIBuilderServerDotnet.Tests
                 ProjectName = projectName
             };
 
+            _mockJwtService.Setup(service => service.GetUserIdFromToken(It.IsAny<ClaimsPrincipal>()))
+                .Returns(userId);
+
             _mockProjectRepository.Setup(repo => repo.GetProjectByUserIdAndProjectName(userId, projectName))
                                   .ReturnsAsync((Project)null);
-
-            var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
-            {
-        new Claim(ClaimTypes.NameIdentifier, userId.ToString())
-            }, "mock"));
-
-            _pageController.ControllerContext = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext { User = user }
-            };
 
             // Act
             var result = await _pageController.AddPage(addPageDto);
@@ -121,21 +110,14 @@ namespace AIBuilderServerDotnet.Tests
             var page = new Page { Id = 1, Name = pageName, Position = 1, ProjectId = project.Id };
             var deletePageDto = new DeletePageDto { ProjectName = projectName, Name = pageName };
 
+            _mockJwtService.Setup(service => service.GetUserIdFromToken(It.IsAny<ClaimsPrincipal>()))
+                .Returns(userId);
+
             _mockProjectRepository.Setup(repo => repo.GetProjectByUserIdAndProjectName(userId, projectName))
                                   .ReturnsAsync(project);
 
             _mockPageRepository.Setup(repo => repo.GetPageByProjectIdAndName(projectId, pageName))
                                    .ReturnsAsync(page);
-
-            var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
-            {
-        new Claim(ClaimTypes.NameIdentifier, userId.ToString())
-            }, "mock"));
-
-            _pageController.ControllerContext = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext { User = user }
-            };
 
             // Act
             var result = await _pageController.DeletePage(deletePageDto);
@@ -158,23 +140,16 @@ namespace AIBuilderServerDotnet.Tests
             var newPageName = "Updated Test Page";
             var project = new Project { Id = 1, Name = projectName, UserId = userId };
             var page = new Page { Id = 1, Name = pageName, Position = 1, ProjectId = project.Id };
-            var updatePageDto = new UpdatePageDto { ProjectName = projectName, Name = pageName, NewName = newPageName};
+            var updatePageDto = new UpdatePageDto { ProjectName = projectName, Name = pageName, NewName = newPageName };
+
+            _mockJwtService.Setup(service => service.GetUserIdFromToken(It.IsAny<ClaimsPrincipal>()))
+                .Returns(userId);
 
             _mockProjectRepository.Setup(repo => repo.GetProjectByUserIdAndProjectName(userId, projectName))
                                   .ReturnsAsync(project);
 
             _mockPageRepository.Setup(repo => repo.GetPageByProjectIdAndName(projectId, pageName))
                                    .ReturnsAsync(page);
-
-            var user = new ClaimsPrincipal(new ClaimsIdentity(new Claim[]
-            {
-        new Claim(ClaimTypes.NameIdentifier, userId.ToString())
-            }, "mock"));
-
-            _pageController.ControllerContext = new ControllerContext
-            {
-                HttpContext = new DefaultHttpContext { User = user }
-            };
 
             // Act
             var result = await _pageController.UpdatePage(updatePageDto);
