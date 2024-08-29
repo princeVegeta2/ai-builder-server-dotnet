@@ -15,6 +15,14 @@ namespace AIBuilderServerDotnet.Data
         public DbSet<Page> Pages { get; set; }
 
         public DbSet<Widget> Widgets { get; set; }
+
+        public DbSet<ColorModal> ColorModals { get; set; }
+
+        public DbSet<LinkModal> LinkModals { get; set; }
+
+        public DbSet<ImageLinkModal> ImageLinkModals { get; set; }
+
+        public DbSet<PromptModal> PromptModals { get; set; }
     }
 
 }

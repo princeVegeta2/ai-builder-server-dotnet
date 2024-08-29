@@ -48,8 +48,15 @@
 
     // Register the ProjectRepository and IProjectRepository (SCOPED creates an instance of the service for each request)
     builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
+    
+    // Register the WidgetRepository and IWidgetRepository (SCOPED creates an instance of the service for each request)
+    builder.Services.AddScoped<IWidgetRepository, WidgetRepository>();
 
+    // Register the PageRepository and IPageRepository (SCOPED creates an instance of the service for each request)
     builder.Services.AddScoped<IPageRepository, PageRepository>();
+
+    // Register ModalRepository and IModalRepository (SCOPED creates an instance of the service for each request)
+    builder.Services.AddScoped<IModalRepository, ModalRepository>();
 
     // Register the AutoMapper to register more profiles automatically <SRP>
     builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
