@@ -19,9 +19,11 @@ namespace AIBuilderServerDotnet.Models
         public string PasswordHash { get; set; } // Corresponds to password_hash VARCHAR(255) NOT NULL
 
         [Column("created_at")]
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow; // Corresponds to created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        public DateTime CreatedAt { get; set; }
+        [Column("updated_at")]
+        public DateTime UpdatedAt { get; set; } // Corresponds to created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 
         [Column("builder_access")]
-        public bool BuilderAccess { get; set; } = false; // Corresponds to builder_access BOOLEAN DEFAULT false
+        public bool BuilderAccess { get; set; } = true; // Corresponds to builder_access BOOLEAN DEFAULT true
     }
 }

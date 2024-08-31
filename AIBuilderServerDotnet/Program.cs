@@ -58,6 +58,9 @@
     // Register ModalRepository and IModalRepository (SCOPED creates an instance of the service for each request)
     builder.Services.AddScoped<IModalRepository, ModalRepository>();
 
+    // Register ModalValueRepository and IModalValueRepository (SCOPED creates an instance of the service for each request)
+    builder.Services.AddScoped<IModalValuesRepository, ModalValuesRepository>();
+
     // Register the AutoMapper to register more profiles automatically <SRP>
     builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 

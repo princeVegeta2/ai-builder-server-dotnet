@@ -2,13 +2,15 @@
 
 namespace AIBuilderServerDotnet.Models
 {
-    [Table("image_link_modals")]
-    public class ImageLinkModal
+    [Table("prompts")]
+    public class Prompt
     {
-        [Column("id")]
+        [Column("id)")]
         public int Id { get; set; }
-        [Column("widget_id")]
-        public int WidgetId { get; set; }
+        [Column("prompt_modal_id")]
+        public int PromptModalId { get; set; }
+        [Column("prompt")]
+        public string PromptValue { get; set; }
         [Column("position")]
         public int Position { get; set; }
         [Column("created_at")]

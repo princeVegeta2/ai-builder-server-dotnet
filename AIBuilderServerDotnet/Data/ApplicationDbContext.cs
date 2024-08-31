@@ -23,6 +23,14 @@ namespace AIBuilderServerDotnet.Data
         public DbSet<ImageLinkModal> ImageLinkModals { get; set; }
 
         public DbSet<PromptModal> PromptModals { get; set; }
+
+        public DbSet<Color> Colors { get; set; }
+
+        public DbSet<Link> Links { get; set; }
+
+        public DbSet<ImageLink> ImageLinks { get; set; }
+
+        public DbSet<Prompt> Prompts { get; set; }
     }
 
 }

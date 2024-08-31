@@ -11,12 +11,14 @@ namespace AIBuilderServerDotnet.Mappings
             // Map from AddPageDto to Page, ignoring the Id property
             CreateMap<AddPageDto, Page>()
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
-                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore()); // Ignore CreatedAt if you want it to be set automatically
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore());// Ignore CreatedAt if you want it to be set automatically
 
             CreateMap<UpdatePageDto, Page>()
                 .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.NewName))
                 .ForMember(dest => dest.Id, opt => opt.Ignore())
-                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore());
+                .ForMember(dest => dest.CreatedAt, opt => opt.Ignore())
+                .ForMember(dest => dest.UpdatedAt, opt => opt.Ignore());
         }
     }
 }

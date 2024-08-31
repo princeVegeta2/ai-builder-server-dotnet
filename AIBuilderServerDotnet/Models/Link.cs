@@ -2,13 +2,17 @@
 
 namespace AIBuilderServerDotnet.Models
 {
-    [Table("image_link_modals")]
-    public class ImageLinkModal
+    [Table("links")]
+    public class Link
     {
         [Column("id")]
         public int Id { get; set; }
-        [Column("widget_id")]
-        public int WidgetId { get; set; }
+        [Column("link_modal_id")]
+        public int LinkModalId { get; set; }
+        [Column("name")]
+        public string Name { get; set; }
+        [Column("url")]
+        public string Url { get; set; }
         [Column("position")]
         public int Position { get; set; }
         [Column("created_at")]

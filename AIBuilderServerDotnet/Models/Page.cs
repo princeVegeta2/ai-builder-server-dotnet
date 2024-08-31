@@ -19,12 +19,8 @@ namespace AIBuilderServerDotnet.Models
         public int Position { get; set; }
 
         [Column("created_at")]
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
-        // Ensure CreatedAt is always in UTC
-        public void SetCreatedAtToUtc()
-        {
-            CreatedAt = DateTime.SpecifyKind(CreatedAt, DateTimeKind.Utc);
-        }
+        public DateTime CreatedAt { get; set; }
+        [Column("updated_at")]
+        public DateTime UpdatedAt { get; set; }
     }
 }

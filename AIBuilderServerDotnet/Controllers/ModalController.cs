@@ -91,6 +91,61 @@ namespace AIBuilderServerDotnet.Controllers
             return Ok(new { message = "Modal added successfully." });
         }
 
+        [HttpDelete("delete-modal")]
+        public async Task<IActionResult> DeleteModal([FromBody] DeleteModalDto deleteModalDto)
+        {
+            var userId = _jwtService.GetUserIdFromToken(User);
+
+            var project = await _projectRepository.GetProjectByUserIdAndProjectName(userId, deleteModalDto.ProjectName);
+
+            if (project == null)
+            {
+                return BadRequest("Project not found");
+            }
+
+            var page = await _pageRepository.GetPageByProjectIdAndName(project.Id, deleteModalDto.PageName);
+
+            if (page == null)
+            {
+                return BadRequest("Page not found");
+            }
+
+            var widget = await _widgetRepository.GetWidgetByPageIdAndPosition(page.Id, deleteModalDto.WidgetPosition);
+
+            if (widget == null)
+            {
+                return BadRequest("Widget not found");
+            }
+
+            switch (deleteModalDto.Type)
+            {
+                case "color":
+                    var colorModal = await _modalRepository.GetColorModalByWidgetIdAndPosition(widget.Id, deleteModalDto.Position);
+                    await _modalRepository.DeleteColorModal(colorModal);
+                    await _modalRepository.UpdateModalPositionsGlobal(widget.Id, deleteModalDto.Position);
+                    break;
+                case "link":
+                    var linkModal = await _modalRepository.GetLinkModalByWidgetIdAndPosition(widget.Id, deleteModalDto.Position);
+                    await _modalRepository.DeleteLinkModal(linkModal);
+                    await _modalRepository.UpdateModalPositionsGlobal(widget.Id, deleteModalDto.Position);
+                    break;
+                case "image-link":
+                    var imageLinkModal = await _modalRepository.GetImageLinkModalByWidgetIdAndPosition(widget.Id, deleteModalDto.Position);
+                    await _modalRepository.DeleteImageLinkModal(imageLinkModal);
+                    await _modalRepository.UpdateModalPositionsGlobal(widget.Id, deleteModalDto.Position);
+                    break;
+                case "prompt":
+                    var promptModal = await _modalRepository.GetPromptModalByWidgetIdAndPosition(widget.Id, deleteModalDto.Position);
+                    await _modalRepository.DeletePromptModal(promptModal);
+                    await _modalRepository.UpdateModalPositionsGlobal(widget.Id, deleteModalDto.Position);
+                    break;
+                default:
+                    return BadRequest("Invalid modal type");
+            }
+
+            return Ok(new { message = "Modal deleted successfully." });
+        }
+
         
 
     }

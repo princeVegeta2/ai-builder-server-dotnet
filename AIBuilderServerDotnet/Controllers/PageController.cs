@@ -108,9 +108,6 @@ namespace AIBuilderServerDotnet.Controllers
             // Manually update the fields
             page.Name = updatePageDto.NewName;
 
-            // Ensure CreatedAt is preserved as UTC
-            page.SetCreatedAtToUtc();
-
             // Update the page in the database
             await _pageRepository.UpdatePage(page);
 

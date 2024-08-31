@@ -12,6 +12,8 @@ namespace AIBuilderServerDotnet.Models
         [Column("position")]
         public int Position { get; set; }
         [Column("created_at")]
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; }
+        [Column("updated_at")]
+        public DateTime UpdatedAt { get; set; }
     }
 }

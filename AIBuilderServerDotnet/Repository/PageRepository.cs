@@ -71,9 +71,6 @@ namespace AIBuilderServerDotnet.Repository
             // Mark the entity as modified
             _context.Pages.Update(page);
 
-            // Ensure the CreatedAt remains in UTC
-            page.SetCreatedAtToUtc();
-
             await _context.SaveChangesAsync();
         }
     }
