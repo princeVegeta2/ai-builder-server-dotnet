@@ -5,7 +5,7 @@ namespace AIBuilderServerDotnet.Models
     [Table("prompts")]
     public class Prompt
     {
-        [Column("id)")]
+        [Column("id")]
         public int Id { get; set; }
         [Column("prompt_modal_id")]
         public int PromptModalId { get; set; }

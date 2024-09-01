@@ -76,6 +76,12 @@ namespace AIBuilderServerDotnet.Repository
                 
         }
 
+        public async Task<bool> CheckIfLinkNameExistsForAModal(string linkName, int linkModalId)
+        {
+            return await _context.Links
+                .AnyAsync(l => l.Name == linkName && l.LinkModalId == linkModalId);
+        }
+
         public async Task<bool> CheckIfUrlExistsForAModal(string url, int linkModalId)
         {
             return await _context.Links
@@ -126,6 +132,13 @@ namespace AIBuilderServerDotnet.Repository
             await _context.Colors
                 .Where(c => c.ColorModalId == colorModalId && c.Position == position)
                 .ExecuteUpdateAsync(s => s.SetProperty(c => c.ColorValue, colorValue));
+        }
+
+        public async Task UpdateLinkName(string linkName, int linkModalId, int position)
+        {
+            await _context.Links
+                .Where(l => l.LinkModalId == linkModalId && l.Position == position)
+                .ExecuteUpdateAsync(s => s.SetProperty(l => l.Name, linkName));
         }
 
         public async Task UpdateLinkUrl(string linkUrl, int linkModalId, int position)

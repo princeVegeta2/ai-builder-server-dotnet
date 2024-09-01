@@ -19,6 +19,7 @@ namespace AIBuilderServerDotnet.Interfaces
 
         // Checking if values exist for modals in the values tables
         Task<bool> CheckIfColorValueExistsForAModal(string colorValue, int colorModalId);
+        Task<bool> CheckIfLinkNameExistsForAModal(string linkName, int linkModalId);
         Task<bool> CheckIfUrlExistsForAModal(string url, int linkModalId);
         Task<bool> CheckIfImageImageUrlExistsForAModal(string imageUrl, int linkModalId);
         Task<bool> CheckIfPromptExistsForAModal(string prompt, int promptModalId);
@@ -31,6 +32,7 @@ namespace AIBuilderServerDotnet.Interfaces
 
         // Updating values in "colors", "links", "image_links", and "prompts" tables
         Task UpdateColorValue(string colorValue, int colorModalId, int position);
+        Task UpdateLinkName(string linkName, int linkModalId, int position);
         Task UpdateLinkUrl(string linkUrl, int linkModalId, int position);
         Task UpdateImageLinkUrl(string imageLinkUrl, int imageLinkModalId, int position);
         Task UpdatePromptValue(string prompt, int promptModalId, int position);

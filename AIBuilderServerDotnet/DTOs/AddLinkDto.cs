@@ -7,6 +7,8 @@ namespace AIBuilderServerDotnet.DTOs
         [Required]
         public int Position { get; set; }
         [Required]
+        public string Name { get; set; }
+        [Required]
         public string Url { get; set; }
         [Required]
         public string ProjectName { get; set; }

@@ -43,29 +43,35 @@ namespace AIBuilderServerDotnet.Controllers
 
             if (project == null)
             {
-                return BadRequest("Project not found");
+                return BadRequest($"Project not found. ProjectName: {addColorDto.ProjectName}, UserId: {userId}");
             }
 
             var page = await _pageRepository.GetPageByProjectIdAndName(project.Id, addColorDto.PageName);
 
             if (page == null)
             {
-                return BadRequest("Page not found");
+                return BadRequest($"Page not found. PageName: {addColorDto.PageName}, ProjectId: {project.Id}");
             }
 
             var widget = await _widgetRepository.GetWidgetByPageIdAndPosition(page.Id, addColorDto.WidgetPosition);
 
             if (widget == null)
             {
-                return BadRequest("Widget not found");
+                return BadRequest($"Widget not found. WidgetPosition: {addColorDto.WidgetPosition}, PageId: {page.Id}");
             }
 
 
-            var colorModal = await _modalRepository.GetColorModalByWidgetIdAndPosition(widget.Id, addColorDto.WidgetPosition);
+            var colorModal = await _modalRepository.GetColorModalByWidgetIdAndPosition(widget.Id, addColorDto.ModalPosition);
 
             if (colorModal == null)
             {
-                return BadRequest("Modal not found");
+                return BadRequest(new
+                {
+                    Message = "Modal not found",
+                    addColorDto = addColorDto, // Include the DTO for more context
+                    WidgetId = widget.Id,
+                    WidgetPosition = addColorDto.WidgetPosition
+                });
             }
 
 
@@ -115,21 +121,30 @@ namespace AIBuilderServerDotnet.Controllers
                 return BadRequest("Widget not found");
             }
 
-            var linkModal = await _modalRepository.GetLinkModalByWidgetIdAndPosition(widget.Id, addLinkDto.WidgetPosition);
+            var linkModal = await _modalRepository.GetLinkModalByWidgetIdAndPosition(widget.Id, addLinkDto.ModalPosition);
 
             if (linkModal == null)
             {
-                return BadRequest("Modal not found");
+                return BadRequest(new
+                {
+                    Message = "Modal not found",
+                    addColorDto = addLinkDto, // Include the DTO for more context
+                    WidgetId = widget.Id,
+                    WidgetPosition = addLinkDto.WidgetPosition
+                });
             }
 
-            if (await _modalValuesRepository.CheckIfUrlExistsForAModal(addLinkDto.Url, linkModal.Id))
+            if (await _modalValuesRepository.CheckIfUrlExistsForAModal(addLinkDto.Url, linkModal.Id)
+                && await _modalValuesRepository.CheckIfLinkNameExistsForAModal(addLinkDto.Name, linkModal.Id))
             {
-                return BadRequest("Url already exists");
+                return BadRequest("Link already exists");
             }
+
 
             if (await _modalValuesRepository.PositionAlreadyExistsForLinkModalId(addLinkDto.Position, linkModal.Id))
             {
                 await _modalValuesRepository.UpdateLinkUrl(addLinkDto.Url, linkModal.Id, addLinkDto.Position);
+                await _modalValuesRepository.UpdateLinkName(addLinkDto.Name, linkModal.Id, addLinkDto.Position);
                 return Ok(new { message = "Link updated successfully." });
             }
 
@@ -166,7 +181,7 @@ namespace AIBuilderServerDotnet.Controllers
                 return BadRequest("Widget not found");
             }
 
-            var imageLinkModal = await _modalRepository.GetImageLinkModalByWidgetIdAndPosition(widget.Id, addImageLinkDto.WidgetPosition);
+            var imageLinkModal = await _modalRepository.GetImageLinkModalByWidgetIdAndPosition(widget.Id, addImageLinkDto.ModalPosition);
 
             if (imageLinkModal == null)
             {
@@ -217,7 +232,7 @@ namespace AIBuilderServerDotnet.Controllers
                 return BadRequest("Widget not found");
             }
 
-            var promptModal = await _modalRepository.GetPromptModalByWidgetIdAndPosition(widget.Id, addPromptDto.WidgetPosition);
+            var promptModal = await _modalRepository.GetPromptModalByWidgetIdAndPosition(widget.Id, addPromptDto.ModalPosition);
 
             if (promptModal == null)
             {
