@@ -187,5 +187,48 @@ namespace AIBuilderServerDotnet.Repository
             await _context.SaveChangesAsync();
         }
 
+        // Implementing methods for updating positions of values
+        public async Task UpdateColorPositions(int colorModalId, int position)
+        {
+            var colorsToUpdate = await _context.Colors
+                .Where(c => c.ColorModalId == colorModalId && c.Position > position)
+                .ToListAsync();
+
+            foreach (var color in colorsToUpdate)
+            {
+                color.Position -= 1;
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task UpdateLinkPositions(int linkModalId, int position)
+        {
+            var linksToUpdate = await _context.Links
+                .Where(l => l.LinkModalId == linkModalId && l.Position > position)
+                .ToListAsync();
+
+            foreach (var link in linksToUpdate)
+            {
+                link.Position -= 1;
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task UpdateImageLinkPositions(int imageLinkModalId, int position)
+        {
+            var imageLinksToUpdate = await _context.ImageLinks
+                .Where(il => il.ImageLinkModalId == imageLinkModalId && il.Position > position)
+                .ToListAsync();
+
+            foreach (var imageLink in imageLinksToUpdate)
+            {
+                imageLink.Position -= 1;
+            }
+
+            await _context.SaveChangesAsync();
+        }
+
     }
 }

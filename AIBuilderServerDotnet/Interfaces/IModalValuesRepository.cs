@@ -42,5 +42,10 @@ namespace AIBuilderServerDotnet.Interfaces
         Task DeleteLink(Link link);
         Task DeleteImageLink(ImageLink imageLink);
         Task DeletePrompt(Prompt prompt);
+
+        // Updating positions in "colors", "links", "image_links", and "prompts" tables
+        Task UpdateColorPositions(int colorModalId, int position);
+        Task UpdateLinkPositions(int linkModalId, int position);
+        Task UpdateImageLinkPositions(int imageLinkModalId, int position);
     }
 }

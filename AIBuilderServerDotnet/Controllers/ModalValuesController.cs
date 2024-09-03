@@ -283,7 +283,7 @@ namespace AIBuilderServerDotnet.Controllers
                 return BadRequest("Widget not found");
             }
 
-            var colorModal = await _modalRepository.GetColorModalByWidgetIdAndPosition(widget.Id, deleteValueDto.WidgetPosition);
+            var colorModal = await _modalRepository.GetColorModalByWidgetIdAndPosition(widget.Id, deleteValueDto.ModalPosition);
 
             if (colorModal == null)
             {
@@ -298,6 +298,7 @@ namespace AIBuilderServerDotnet.Controllers
             }
 
             await _modalValuesRepository.DeleteColor(color);
+            await _modalValuesRepository.UpdateColorPositions(colorModal.Id, deleteValueDto.Position);
 
             return Ok(new { message = "Color deleted successfully." });
         }
@@ -328,7 +329,7 @@ namespace AIBuilderServerDotnet.Controllers
                 return BadRequest("Widget not found");
             }
 
-            var linkModal = await _modalRepository.GetLinkModalByWidgetIdAndPosition(widget.Id, deleteValueDto.WidgetPosition);
+            var linkModal = await _modalRepository.GetLinkModalByWidgetIdAndPosition(widget.Id, deleteValueDto.ModalPosition);
 
             if (linkModal == null)
             {
@@ -343,6 +344,7 @@ namespace AIBuilderServerDotnet.Controllers
             }
 
             await _modalValuesRepository.DeleteLink(link);
+            await _modalValuesRepository.UpdateLinkPositions(linkModal.Id, deleteValueDto.Position);
 
             return Ok(new { message = "Link deleted successfully." });
         }
@@ -373,7 +375,7 @@ namespace AIBuilderServerDotnet.Controllers
                 return BadRequest("Widget not found");
             }
 
-            var imageLinkModal = await _modalRepository.GetImageLinkModalByWidgetIdAndPosition(widget.Id, deleteValueDto.WidgetPosition);
+            var imageLinkModal = await _modalRepository.GetImageLinkModalByWidgetIdAndPosition(widget.Id, deleteValueDto.ModalPosition);
 
             if (imageLinkModal == null)
             {
@@ -382,63 +384,15 @@ namespace AIBuilderServerDotnet.Controllers
 
             var imageLink = await _modalValuesRepository.GetImageLinkByImageLinkModalIdAndPosition(imageLinkModal.Id, deleteValueDto.Position);
 
-            if (imageLinkModal == null)
+            if (imageLink == null)
             {
                 return BadRequest("Image link not found");
             }
 
             await _modalValuesRepository.DeleteImageLink(imageLink);
+            await _modalValuesRepository.UpdateImageLinkPositions(imageLinkModal.Id, deleteValueDto.Position);
 
             return Ok(new { message = "Image link deleted successfully." });
         }
-
-        [HttpDelete("delete-prompt")]
-        public async Task<IActionResult> DeletePrompt([FromBody] DeleteValueDto deleteValueDto)
-        {
-            var userId = _jwtService.GetUserIdFromToken(User);
-
-            var project = await _projectRepository.GetProjectByUserIdAndProjectName(userId, deleteValueDto.ProjectName);
-
-            if (project == null)
-            {
-                return BadRequest("Project not found");
-            }
-
-            var page = await _pageRepository.GetPageByProjectIdAndName(project.Id, deleteValueDto.PageName);
-
-            if (page == null)
-            {
-                return BadRequest("Page not found");
-            }
-
-            var widget = await _widgetRepository.GetWidgetByPageIdAndPosition(page.Id, deleteValueDto.WidgetPosition);
-
-            if (widget == null)
-            {
-                return BadRequest("Widget not found");
-            }
-
-            var promptModal = await _modalRepository.GetPromptModalByWidgetIdAndPosition(widget.Id, deleteValueDto.WidgetPosition);
-
-            if (promptModal == null)
-            {
-                return BadRequest("Modal not found");
-            }
-
-            var prompt = await _modalValuesRepository.GetPromptByPromptModalIdAndPosition(promptModal.Id, deleteValueDto.Position);
-
-            if (prompt == null)
-            {
-                return BadRequest("Link not found");
-            }
-
-            await _modalValuesRepository.DeletePrompt(prompt);
-
-            return Ok(new { message = "Link deleted successfully." });
-        }
-
-
-
-
     }
 }

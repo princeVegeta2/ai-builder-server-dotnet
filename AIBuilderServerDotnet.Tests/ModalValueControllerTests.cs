@@ -302,7 +302,9 @@ namespace AIBuilderServerDotnet.Tests
                 Position = position,
                 ProjectName = projectName,
                 PageName = pageName,
-                WidgetPosition = widgetPosition
+                WidgetPosition = widgetPosition,
+                ModalPosition = modalPosition,
+                ModalType = "color" // Ensure ModalType is provided
             };
 
             // Mock JWT service to return the correct user ID
@@ -335,6 +337,7 @@ namespace AIBuilderServerDotnet.Tests
             _mockModalValuesRepository.Verify(repo => repo.DeleteColor(color), Times.Once);
         }
 
+
         [Fact]
         public async Task DeleteLink_ReturnsOkResult_WhenLinkDeletedSuccessfully()
         {
@@ -357,7 +360,9 @@ namespace AIBuilderServerDotnet.Tests
                 Position = position,
                 ProjectName = projectName,
                 PageName = pageName,
-                WidgetPosition = widgetPosition
+                WidgetPosition = widgetPosition,
+                ModalPosition = modalPosition,
+                ModalType = "link" // Ensure ModalType is provided
             };
 
             // Mock JWT service to return the correct user ID
@@ -391,6 +396,7 @@ namespace AIBuilderServerDotnet.Tests
         }
 
 
+
         [Fact]
         public async Task DeleteImageLink_ReturnsOkResult_WhenImageLinkDeletedSuccessfully()
         {
@@ -413,7 +419,9 @@ namespace AIBuilderServerDotnet.Tests
                 Position = position,
                 ProjectName = projectName,
                 PageName = pageName,
-                WidgetPosition = widgetPosition
+                WidgetPosition = widgetPosition,
+                ModalPosition = modalPosition,
+                ModalType = "image-link" // Ensure ModalType is provided
             };
 
             // Mock JWT service to return the correct user ID
@@ -445,63 +453,6 @@ namespace AIBuilderServerDotnet.Tests
 
             _mockModalValuesRepository.Verify(repo => repo.DeleteImageLink(imageLink), Times.Once);
         }
-
-        [Fact]
-        public async Task DeletePrompt_ReturnsOkResult_WhenPromptDeletedSuccessfully()
-        {
-            // Arrange
-            var userId = 1;
-            var position = 1;
-            var projectName = "Test project";
-            var pageName = "Test page";
-            var widgetPosition = 1;
-            var modalPosition = 1;
-
-            var project = new Project { Id = 1, Name = projectName, UserId = userId };
-            var page = new Page { Id = 1, Name = pageName, ProjectId = project.Id };
-            var widget = new Widget { Id = 1, PageId = page.Id, Type = "navbar", Position = widgetPosition };
-            var promptModal = new PromptModal { Id = 1, WidgetId = widget.Id, Position = modalPosition };
-            var prompt = new Prompt { Id = 1, PromptModalId = promptModal.Id, Position = position, PromptValue = "Example Prompt" };
-
-            var deleteValueDto = new DeleteValueDto
-            {
-                Position = position,
-                ProjectName = projectName,
-                PageName = pageName,
-                WidgetPosition = widgetPosition
-            };
-
-            // Mock JWT service to return the correct user ID
-            _mockJwtService.Setup(service => service.GetUserIdFromToken(It.IsAny<ClaimsPrincipal>()))
-                .Returns(userId);
-
-            // Mock the repository methods to return the appropriate objects
-            _mockProjectRepository.Setup(repo => repo.GetProjectByUserIdAndProjectName(userId, projectName))
-                                  .ReturnsAsync(project);
-
-            _mockPageRepository.Setup(repo => repo.GetPageByProjectIdAndName(project.Id, pageName))
-                               .ReturnsAsync(page);
-
-            _mockWidgetRepository.Setup(repo => repo.GetWidgetByPageIdAndPosition(page.Id, widgetPosition))
-                                 .ReturnsAsync(widget);
-
-            _mockModalRepository.Setup(repo => repo.GetPromptModalByWidgetIdAndPosition(widget.Id, modalPosition))
-                                .ReturnsAsync(promptModal);
-
-            _mockModalValuesRepository.Setup(repo => repo.GetPromptByPromptModalIdAndPosition(promptModal.Id, position))
-                                      .ReturnsAsync(prompt);
-
-            // Act
-            var result = await _modalValuesController.DeletePrompt(deleteValueDto);
-
-            // Assert
-            var okResult = Assert.IsType<OkObjectResult>(result);
-            Assert.Equal(200, okResult.StatusCode);
-
-            _mockModalValuesRepository.Verify(repo => repo.DeletePrompt(prompt), Times.Once);
-        }
-
-
 
     }
 }
