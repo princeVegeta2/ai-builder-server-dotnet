@@ -50,5 +50,17 @@ namespace AIBuilderServerDotnet.Repository
                 .FirstOrDefaultAsync();
         }
 
+        /// <summary>
+        /// Retrieves all projects for a specific user by userId.
+        /// </summary>
+        /// <param name="userId">The ID of the user.</param>
+        /// <returns>A list of projects associated with the user.</returns>
+        public async Task<IEnumerable<Project>> GetProjectsByUserId(int userId)
+        {
+            return await _context.Projects
+                .Where(p => p.UserId == userId)
+                .ToListAsync();
+        }
+
     }
 }

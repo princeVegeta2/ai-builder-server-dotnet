@@ -84,5 +84,39 @@ namespace AIBuilderServerDotnet.Tests
             _mockProjectRepository.Verify(repo => repo.AddProject(It.IsAny<Project>()), Times.Never);
             _mockProjectRepository.Verify(repo => repo.ProjectExistsForUserAsync(userId, addProjectDto.Name), Times.Once);
         }
+
+        [Fact]
+        public async Task GetUserProjectNames_ReturnsOkResult_WithProjectNames()
+        {
+            // Arrange
+            var userId = 1;
+            var projects = new List<Project>
+    {
+        new Project { Id = 1, Name = "Project 1", UserId = userId },
+        new Project { Id = 2, Name = "Project 2", UserId = userId },
+        new Project { Id = 3, Name = "Project 3", UserId = userId }
+    };
+
+            _mockJwtService.Setup(service => service.GetUserIdFromToken(It.IsAny<ClaimsPrincipal>()))
+                .Returns(userId);
+
+            _mockProjectRepository.Setup(repo => repo.GetProjectsByUserId(userId))
+                .ReturnsAsync(projects);
+
+            // Act
+            var result = await _projectController.GetUserProjectNames();
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            var projectNames = Assert.IsType<List<string>>(okResult.Value);
+
+            Assert.Equal(3, projectNames.Count);
+            Assert.Contains("Project 1", projectNames);
+            Assert.Contains("Project 2", projectNames);
+            Assert.Contains("Project 3", projectNames);
+
+            _mockProjectRepository.Verify(repo => repo.GetProjectsByUserId(userId), Times.Once);
+        }
+
     }
 }

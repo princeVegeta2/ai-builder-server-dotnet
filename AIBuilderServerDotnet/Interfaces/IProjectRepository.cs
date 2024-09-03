@@ -12,5 +12,7 @@ namespace AIBuilderServerDotnet.Interfaces
 
         // Retrieving a project name by user id
         Task<Project> GetProjectByUserIdAndProjectName(int userId, string projectName);
+        // Retrieving all projects for the user
+        Task<IEnumerable<Project>> GetProjectsByUserId(int userId);
     }
 }

@@ -52,5 +52,22 @@ namespace AIBuilderServerDotnet.Controllers
             return Ok(response);
         }
 
+        [HttpGet("user-projects")]
+        public async Task<IActionResult> GetUserProjectNames()
+        {
+            var userId = _jwtService.GetUserIdFromToken(User);
+            var projects = await _projectRepository.GetProjectsByUserId(userId);
+
+            if (projects == null || !projects.Any())
+            {
+                return BadRequest(new { message = "No projects found for this user." });
+            }
+
+            var projectNames = projects.Select(p => p.Name).ToList();
+
+            return Ok(projectNames);
+        }
+
+
     }
 }
