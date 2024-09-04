@@ -2,6 +2,7 @@
 using AIBuilderServerDotnet.Interfaces;
 using AIBuilderServerDotnet.Models;
 using Microsoft.EntityFrameworkCore;
+using AIBuilderServerDotnet.DTOs;
 
 namespace AIBuilderServerDotnet.Repository
 {
@@ -61,6 +62,83 @@ namespace AIBuilderServerDotnet.Repository
                 .Where(p => p.UserId == userId)
                 .ToListAsync();
         }
+
+        public async Task<ProjectDto> GetProjectDetails(int userId, string projectName)
+        {
+            var result = await (from project in _context.Projects
+                                where project.UserId == userId && project.Name == projectName
+                                select new ProjectDto
+                                {
+                                    ProjectName = project.Name,
+                                    Pages = (from page in _context.Pages
+                                             where page.ProjectId == project.Id
+                                             select new PageDto
+                                             {
+                                                 PageName = page.Name,
+                                                 Position = page.Position,
+                                                 Widgets = (from widget in _context.Widgets
+                                                            where widget.PageId == page.Id
+                                                            select new WidgetDto
+                                                            {
+                                                                Type = widget.Type,
+                                                                Position = widget.Position,
+                                                                ColorModal = (from colorModal in _context.ColorModals
+                                                                              where colorModal.WidgetId == widget.Id
+                                                                              select new ColorModalDto
+                                                                              {
+                                                                                  Position = colorModal.Position,
+                                                                                  Colors = (from color in _context.Colors
+                                                                                            where color.ColorModalId == colorModal.Id
+                                                                                            select new ColorValueDto
+                                                                                            {
+                                                                                                Color = color.ColorValue,
+                                                                                                Position = color.Position
+                                                                                            }).ToList()
+                                                                              }).FirstOrDefault(),
+                                                                LinkModal = (from linkModal in _context.LinkModals
+                                                                             where linkModal.WidgetId == widget.Id
+                                                                             select new LinkModalDto
+                                                                             {
+                                                                                 Position = linkModal.Position,
+                                                                                 Links = (from link in _context.Links
+                                                                                          where link.LinkModalId == linkModal.Id
+                                                                                          select new LinkValueDto
+                                                                                          {
+                                                                                              Name = link.Name,
+                                                                                              Url = link.Url,
+                                                                                              Position = link.Position
+                                                                                          }).ToList()
+                                                                             }).FirstOrDefault(),
+                                                                ImageLinkModal = (from imageLinkModal in _context.ImageLinkModals
+                                                                                  where imageLinkModal.WidgetId == widget.Id
+                                                                                  select new ImageLinkModalDto
+                                                                                  {
+                                                                                      Position = imageLinkModal.Position,
+                                                                                      ImageLinks = (from imageLink in _context.ImageLinks
+                                                                                                    where imageLink.ImageLinkModalId == imageLinkModal.Id
+                                                                                                    select new ImageLinkValueDto
+                                                                                                    {
+                                                                                                        Url = imageLink.ImageUrl,
+                                                                                                        Position = imageLink.Position
+                                                                                                    }).ToList()
+                                                                                  }).FirstOrDefault(),
+                                                                PromptModal = (from promptModal in _context.PromptModals
+                                                                               where promptModal.WidgetId == widget.Id
+                                                                               select new PromptModalDto
+                                                                               {
+                                                                                   Position = promptModal.Position,
+                                                                                   Prompt = (from prompt in _context.Prompts
+                                                                                             where prompt.PromptModalId == promptModal.Id
+                                                                                             select prompt.PromptValue).FirstOrDefault()
+                                                                               }).FirstOrDefault()
+                                                            }).ToList()
+                                             }).ToList()
+                                }).FirstOrDefaultAsync();
+
+            return result;
+        }
+
+
 
     }
 }

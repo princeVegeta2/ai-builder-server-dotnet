@@ -1,4 +1,5 @@
-﻿using AIBuilderServerDotnet.Models;
+﻿using AIBuilderServerDotnet.DTOs;
+using AIBuilderServerDotnet.Models;
 
 namespace AIBuilderServerDotnet.Interfaces
 {
@@ -14,5 +15,8 @@ namespace AIBuilderServerDotnet.Interfaces
         Task<Project> GetProjectByUserIdAndProjectName(int userId, string projectName);
         // Retrieving all projects for the user
         Task<IEnumerable<Project>> GetProjectsByUserId(int userId);
+        // Retrieving all project data for a single project
+        Task<ProjectDto> GetProjectDetails(int userId, string projectName);
+
     }
 }

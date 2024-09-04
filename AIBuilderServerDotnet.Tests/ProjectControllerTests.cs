@@ -118,5 +118,89 @@ namespace AIBuilderServerDotnet.Tests
             _mockProjectRepository.Verify(repo => repo.GetProjectsByUserId(userId), Times.Once);
         }
 
+        [Fact]
+        public async Task GetProjectDetails_ReturnsOkResult_WithProjectDetails()
+        {
+            // Arrange
+            var userId = 1;
+            var projectName = "Test Project";
+
+            // Mock the ProjectDto response for the method
+            var projectDto = new ProjectDto
+            {
+                ProjectName = projectName,
+                Pages = new List<PageDto>
+        {
+            new PageDto
+            {
+                PageName = "Page 1",
+                Position = 1,
+                Widgets = new List<WidgetDto>
+                {
+                    new WidgetDto
+                    {
+                        Type = "WidgetType1",
+                        Position = 1,
+                        ColorModal = new ColorModalDto
+                        {
+                            Position = 1,
+                            Colors = new List<ColorValueDto>
+                            {
+                                new ColorValueDto { Color = "#FF0000", Position = 1 }
+                            }
+                        },
+                        LinkModal = new LinkModalDto
+                        {
+                            Position = 1,
+                            Links = new List<LinkValueDto>
+                            {
+                                new LinkValueDto { Name = "Link1", Url = "http://example.com", Position = 1 }
+                            }
+                        },
+                        ImageLinkModal = new ImageLinkModalDto
+                        {
+                            Position = 1,
+                            ImageLinks = new List<ImageLinkValueDto>
+                            {
+                                new ImageLinkValueDto { Url = "http://example.com/image.png", Position = 1 }
+                            }
+                        },
+                        PromptModal = new PromptModalDto
+                        {
+                            Position = 1,
+                            Prompt = "Sample prompt"
+                        }
+                    }
+                }
+            }
+        }
+            };
+
+            // Mock JWT service to return the correct user ID
+            _mockJwtService.Setup(service => service.GetUserIdFromToken(It.IsAny<ClaimsPrincipal>()))
+                .Returns(userId);
+
+            // Mock the repository to return the mocked ProjectDto
+            _mockProjectRepository.Setup(repo => repo.GetProjectDetails(userId, projectName))
+                .ReturnsAsync(projectDto);
+
+            // Act
+            var result = await _projectController.GetProjectDetails(projectName);
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            var returnedProject = Assert.IsType<ProjectDto>(okResult.Value);
+
+            Assert.Equal(projectName, returnedProject.ProjectName);
+            Assert.Single(returnedProject.Pages);
+            Assert.Equal("Page 1", returnedProject.Pages[0].PageName);
+            Assert.Single(returnedProject.Pages[0].Widgets);
+            Assert.Equal("WidgetType1", returnedProject.Pages[0].Widgets[0].Type);
+            Assert.Equal("#FF0000", returnedProject.Pages[0].Widgets[0].ColorModal.Colors[0].Color);
+            Assert.Equal("Sample prompt", returnedProject.Pages[0].Widgets[0].PromptModal.Prompt);
+            _mockProjectRepository.Verify(repo => repo.GetProjectDetails(userId, projectName), Times.Once);
+        }
+
+
     }
 }

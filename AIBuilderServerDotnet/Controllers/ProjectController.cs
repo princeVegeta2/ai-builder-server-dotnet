@@ -68,6 +68,22 @@ namespace AIBuilderServerDotnet.Controllers
             return Ok(projectNames);
         }
 
+        [HttpGet("load-project")]
+        public async Task<IActionResult> GetProjectDetails([FromQuery] string projectName)
+        {
+            var userId = _jwtService.GetUserIdFromToken(User);
+
+            var projectDetails = await _projectRepository.GetProjectDetails(userId, projectName);
+
+            if (projectDetails == null)
+            {
+                return NotFound(new { message = "Project not found" });
+            }
+
+            return Ok(projectDetails);
+        }
+
+
 
     }
 }
