@@ -58,7 +58,7 @@ namespace AIBuilderServerDotnet.Tests
 
             // Assert
             var okResult = Assert.IsType<OkObjectResult>(result);
-            Assert.Equal("User registered successfully.", okResult.Value);
+            Assert.Equal(200, okResult.StatusCode);
         }
 
         [Fact]

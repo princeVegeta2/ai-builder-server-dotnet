@@ -29,13 +29,13 @@ namespace AIBuilderServerDotnet.Controllers
             // Check if the email already exists
             if (await _userRepository.UserExistsByEmailAsync(signUpDto.Email))
             {
-                return BadRequest("Email already in use");
+                return BadRequest(new { error = "Email already in use" });
             }
 
             // Check if the username already exists
             if (await _userRepository.UserExistsByUsernameAsync(signUpDto.Username))
             {
-                return BadRequest("Username already in use");
+                return BadRequest(new { error = "Username already in use" });
             }
 
             // Create a new user
@@ -46,8 +46,9 @@ namespace AIBuilderServerDotnet.Controllers
             // Add a new user to the database
             await _userRepository.AddUserAsync(user);
 
-            return Ok("User registered successfully.");
+            return Ok(new { message = "User registered successfully." });
         }
+
 
         [HttpPost("signin")]
         public async Task<IActionResult> SignIn([FromBody] SignInDto signInDto)
