@@ -17,6 +17,8 @@ namespace AIBuilderServerDotnet.Interfaces
         Task<IEnumerable<Project>> GetProjectsByUserId(int userId);
         // Retrieving all project data for a single project
         Task<ProjectDto> GetProjectDetails(int userId, string projectName);
+        // Deleting a project
+        Task DeleteProject(Project project);
 
     }
 }

@@ -138,7 +138,11 @@ namespace AIBuilderServerDotnet.Repository
             return result;
         }
 
-
+        public async Task DeleteProject(Project project)
+        {
+            _context.Projects.Remove(project);
+            await _context.SaveChangesAsync();
+        }
 
     }
 }

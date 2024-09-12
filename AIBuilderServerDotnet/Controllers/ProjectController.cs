@@ -83,7 +83,21 @@ namespace AIBuilderServerDotnet.Controllers
             return Ok(projectDetails);
         }
 
+        [HttpDelete("delete-project")]
+        public async Task<IActionResult> DeleteProject([FromBody] DeleteProjectDto deleteProjectDto)
+        {
+            var userId = _jwtService.GetUserIdFromToken(User);
 
+            var project = await _projectRepository.GetProjectByUserIdAndProjectName(userId, deleteProjectDto.Name);
 
+            if (project == null)
+            {
+                return NotFound(new { message = "Project not found" });
+            }
+
+            await _projectRepository.DeleteProject(project);
+
+            return Ok("Project delete succesfully");
+        }
     }
 }

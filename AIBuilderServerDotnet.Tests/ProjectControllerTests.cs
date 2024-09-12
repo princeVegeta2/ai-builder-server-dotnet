@@ -202,5 +202,46 @@ namespace AIBuilderServerDotnet.Tests
         }
 
 
+        [Fact]
+        public async Task DeleteProject_ProjectExists_ReturnsOk()
+        {
+            // Arrange
+            var deleteProjectDto = new DeleteProjectDto { Name = "TestProject" };
+            var userId = 1;
+            var project = new Project { Name = deleteProjectDto.Name, UserId = userId };
+
+            _mockJwtService.Setup(service => service.GetUserIdFromToken(It.IsAny<ClaimsPrincipal>()))
+            .Returns(userId);
+            _mockProjectRepository.Setup(r => r.GetProjectByUserIdAndProjectName(userId, deleteProjectDto.Name))
+                .ReturnsAsync(project);
+            _mockProjectRepository.Setup(r => r.DeleteProject(project))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            var result = await _projectController.DeleteProject(deleteProjectDto);
+
+            // Assert
+            var okResult = Assert.IsType<OkObjectResult>(result);
+            Assert.Equal("Project delete succesfully", okResult.Value);
+        }
+
+        [Fact]
+        public async Task DeleteProject_ProjectDoesNotExist_ReturnsNotFound()
+        {
+            // Arrange
+            var deleteProjectDto = new DeleteProjectDto { Name = "NonExistentProject" };
+            var userId = 1;
+
+            _mockJwtService.Setup(service => service.GetUserIdFromToken(It.IsAny<ClaimsPrincipal>()))
+                .Returns(userId);
+            _mockProjectRepository.Setup(r => r.GetProjectByUserIdAndProjectName(userId, deleteProjectDto.Name)).
+                ReturnsAsync((Project)null);
+
+            // Act
+            var result = await _projectController.DeleteProject(deleteProjectDto);
+
+            // Assert
+            var notFoundResult = Assert.IsType<NotFoundObjectResult>(result);
+        }
     }
 }
