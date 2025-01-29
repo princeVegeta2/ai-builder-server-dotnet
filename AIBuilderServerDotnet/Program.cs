@@ -81,7 +81,6 @@ builder.Services.AddCors(options =>
             "https://localhost:3000",
             "http://localhost:4000",
             "https://localhost:4000",
-            "https://wbuilder.any.christmas"
         };
 
         builder.WithOrigins(allowedOrigins)
